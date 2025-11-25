@@ -1,5 +1,8 @@
 console.log("Email Writer - Smart Dynamic Buttons");
 
+// Backend base URL (Render)
+const API_BASE_URL = 'https://mailai-extension-3.onrender.com';
+
 function getEmailContent() {
     const selectors = [
         '.h7',
@@ -229,7 +232,7 @@ function createAIReplySplitButton() {
 
             const emailContent = getEmailContent();
 
-            const response = await fetch('http://localhost:8080/api/email/generate', {
+            const response = await fetch(`${API_BASE_URL}/api/email/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -272,7 +275,7 @@ function createAIReplySplitButton() {
     return container;
 }
 
-//Creating Improve Reply Split Button (Main button + Improvement dropdown)
+// Creating Improve Reply Split Button (Main button + Improvement dropdown)
 function createImproveSplitButton() {
     const container = document.createElement('div');
     container.className = 'improve-split-button-container';
@@ -474,7 +477,7 @@ function createImproveSplitButton() {
                 return;
             }
 
-            const response = await fetch('http://localhost:8080/api/email/improve', {
+            const response = await fetch(`${API_BASE_URL}/api/email/improve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -517,7 +520,7 @@ function createImproveSplitButton() {
     return container;
 }
 
-//Toggle Improve Button Visibility Based on Compose Box Content
+// Toggle Improve Button Visibility Based on Compose Box Content
 function toggleImproveButton() {
     if (!improveSplitButtonInstance) return;
 
@@ -537,7 +540,7 @@ function toggleImproveButton() {
     }
 }
 
-//Watch Compose Box for Changes
+// Watch Compose Box for Changes
 function watchComposeBox() {
     const composeBox = document.querySelector('[role="textbox"][g_editable="true"]');
     
