@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 public class EmailGeneratorController {
 
     private final EmailGeneratorService emailGeneratorService;
-    @GetMapping("/health")
+    @GetMapping("/setup")
     public String health() {
-        return "EmailWriter v2 - RestClient";
+        return "Email Generator Service is running.";
     }
 
     //Generate Email
