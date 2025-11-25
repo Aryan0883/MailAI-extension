@@ -1,82 +1,170 @@
 package com.email.email_writer;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 @Service
 public class EmailGeneratorService {
 
-    private final WebClient webClient;
-    private final String apikey;
+    private final RestClient restClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public EmailGeneratorService(WebClient.Builder webClientBuilder,
-                                 @Value("${gemini.api.url}") String baseUrl,
-                                 @Value("${gemini.api.key}") String geminiApiKey) {
-        this.webClient = webClientBuilder.baseUrl(baseUrl).build();
-        this.apikey = geminiApiKey;
+    public EmailGeneratorService(
+            @Value("${gemini.api.url}") String baseUrl,
+            @Value("${gemini.api.key}") String geminiApiKey) {
+
+        this.restClient = RestClient.builder()
+                .baseUrl(baseUrl)                      // e.g. https://generativelanguage.googleapis.com
+                .defaultHeader("x-goog-api-key", geminiApiKey)
+                .build();
     }
 
-    //Generate Email Reply
+    // Generate Email Reply
     public String generateEmailReply(EmailRequest emailRequest) {
         String prompt = buildPrompt(emailRequest);
+
         String requestBody = String.format("""
                 {
-                    "contents": [
-                      {
-                        "parts": [
-                          {
-                            "text": "%s"
-                          }
-                        ]
-                      }
-                    ]
-                  }""", prompt);
+                  "contents": [
+                    {
+                      "parts": [
+                        {
+                          "text": "%s"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """, escapeForJson(prompt));
 
-        String response = webClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/v1beta/models/gemini-2.5-flash:generateContent")
-                        .build())
-                .header("x-goog-api-key", apikey)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
+        String response = restClient.post()
+                .uri("/v1beta/models/gemini-2.5-flash:generateContent")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(requestBody)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
 
         return extractResponseContent(response);
     }
 
-    //Improve Existing Reply
+    // Improve Existing Reply
     public String improveEmailReply(ImproveRequest improveRequest) {
         String prompt = buildImprovePrompt(improveRequest);
+
         String requestBody = String.format("""
                 {
-                    "contents": [
-                      {
-                        "parts": [
-                          {
-                            "text": "%s"
-                          }
-                        ]
-                      }
-                    ]
-                  }""", prompt);
+                  "contents": [
+                    {
+                      "parts": [
+                        {
+                          "text": "%s"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """, escapeForJson(prompt));
 
-        String response = webClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/v1beta/models/gemini-2.5-flash:generateContent")
-                        .build())
-                .header("x-goog-api-key", apikey)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
+        String response = restClient.post()
+                .uri("/v1beta/models/gemini-2.5-flash:generateContent")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(requestBody)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
 
         return extractResponseContent(response);
+    }
+
+    // --- Helper methods ---
+
+    // Simple escaping so multi-line prompts don't break JSON
+    private String escapeForJson(String text) {
+        return text
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "");
+    }
+
+    private String extractResponseContent(String response) {
+        try {
+            JsonNode root = objectMapper.readTree(response);
+            return root.path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text")
+                    .asText();
+        } catch (JsonProcessingException | NullPointerException e) {
+            throw new RuntimeException("Failed to parse Gemini response: " + response, e);
+        }
+    }
+
+    private String buildPrompt(EmailRequest emailRequest) {
+        String originalEmail = emailRequest.getEmailContent();
+        String tone = emailRequest.getTone();
+        if (tone == null) {
+            tone = "";
+        }
+        tone = tone.trim().toLowerCase();
+
+        String toneGuidelines;
+        switch (tone) {
+            case "professional" -> toneGuidelines = """
+                    - Tone: Professional, polite and respectful.
+                    - Use clear, concise sentences.
+                    - Avoid slang and emojis.
+                    - Use proper greetings and sign-offs.
+                    """;
+            case "casual" -> toneGuidelines = """
+                    - Tone: Casual and relaxed, but still respectful.
+                    - You can use contractions (I'm, don't, can't).
+                    - Use simple, natural language.
+                    - Avoid overly formal phrases and buzzwords.
+                    """;
+            case "friendly" -> toneGuidelines = """
+                    - Tone: Warm, positive and friendly.
+                    - Show empathy and enthusiasm where appropriate.
+                    - Keep it simple and easy to read.
+                    - You may add a friendly closing line.
+                    """;
+            case "short" -> toneGuidelines = """
+                    - Tone: Short and direct.
+                    - Keep the reply brief (2–5 sentences).
+                    - Go straight to the point while staying polite.
+                    - Avoid unnecessary details or long explanations.
+                    """;
+            default -> toneGuidelines = """
+                    - Tone: Match the formality of the original email.
+                    - Be clear, polite and natural.
+                    """;
+        }
+
+        String prompt = """
+                You are an expert email assistant.
+                Write a complete reply to the email below.
+
+                Requirements:
+                %s
+                - Respond as if you are the recipient of the email.
+                - Answer all questions and acknowledge important points.
+                - Keep the reply focused on the email content.
+                - Do NOT include a subject line.
+                - Do NOT explain what you are doing, only output the email text.
+                - Do NOT mention that you are an AI.
+                - Write the reply in the same language as the original email.
+
+                Original Email:
+                %s
+                """;
+
+        return String.format(prompt, toneGuidelines, originalEmail);
     }
 
     // Build Prompt for Improving Reply
@@ -151,82 +239,5 @@ public class EmailGeneratorService {
                 """;
 
         return String.format(prompt, improvementGuidelines, originalReply);
-    }
-
-    private String extractResponseContent(String response) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response);
-            return root.path("candidates")
-                    .get(0)
-                    .path("content")
-                    .path("parts")
-                    .get(0)
-                    .path("text")
-                    .asText();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String buildPrompt(EmailRequest emailRequest) {
-        String originalEmail = emailRequest.getEmailContent();
-        String tone = emailRequest.getTone();
-        if (tone == null) {
-            tone = "";
-        }
-        tone = tone.trim().toLowerCase();
-
-        String toneGuidelines;
-        switch (tone) {
-            case "professional" -> toneGuidelines = """
-                    - Tone: Professional, polite and respectful.
-                    - Use clear, concise sentences.
-                    - Avoid slang and emojis.
-                    - Use proper greetings and sign-offs.
-                    """;
-            case "casual" -> toneGuidelines = """
-                    - Tone: Casual and relaxed, but still respectful.
-                    - You can use contractions (I'm, don't, can't).
-                    - Use simple, natural language.
-                    - Avoid overly formal phrases and buzzwords.
-                    """;
-            case "friendly" -> toneGuidelines = """
-                    - Tone: Warm, positive and friendly.
-                    - Show empathy and enthusiasm where appropriate.
-                    - Keep it simple and easy to read.
-                    - You may add a friendly closing line.
-                    """;
-            case "short" -> toneGuidelines = """
-                    - Tone: Short and direct.
-                    - Keep the reply brief (2–5 sentences).
-                    - Go straight to the point while staying polite.
-                    - Avoid unnecessary details or long explanations.
-                    """;
-            default -> toneGuidelines = """
-                    - Tone: Match the formality of the original email.
-                    - Be clear, polite and natural.
-                    """;
-        }
-
-        String prompt = """
-                You are an expert email assistant.
-                Write a complete reply to the email below.
-
-                Requirements:
-                %s
-                - Respond as if you are the recipient of the email.
-                - Answer all questions and acknowledge important points.
-                - Keep the reply focused on the email content.
-                - Do NOT include a subject line.
-                - Do NOT explain what you are doing, only output the email text.
-                - Do NOT mention that you are an AI.
-                - Write the reply in the same language as the original email.
-
-                Original Email:
-                %s
-                """;
-
-        return String.format(prompt, toneGuidelines, originalEmail);
     }
 }
