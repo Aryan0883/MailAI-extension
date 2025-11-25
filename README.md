@@ -62,7 +62,6 @@ This project is a **Chrome extension + Spring Boot backend** that puts AI reply 
 
 ## 🖼 Demo
 
-> TODO: Add a GIF / screenshot and optional video link.
 > 
 - Demo video(React+vite): https://1drv.ms/v/c/9ac9dee7a01ebf9b/EXBV94EoiiZApava6AfOzDsB0-cvBqjHhyVFahbiiCxZZw?e=QEq4Bo
 - Demo video(extension):  https://1drv.ms/v/c/9ac9dee7a01ebf9b/EafpHp2C3stErbvqlniJaOIBhgbaetGt5i8ivxtx5_kGNg?e=PMGocm
