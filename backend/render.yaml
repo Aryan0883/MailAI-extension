@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: email-writer-api
+    runtime: java
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_API_URL
+        value: https://generativelanguage.googleapis.com
+      - key: PORT
+        value: 8080
