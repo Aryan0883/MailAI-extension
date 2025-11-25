@@ -65,7 +65,7 @@ This project is a **Chrome extension + Spring Boot backend** that puts AI reply 
 > TODO: Add a GIF / screenshot and optional video link.
 > 
 - Demo video(React+vite): https://1drv.ms/v/c/9ac9dee7a01ebf9b/EXBV94EoiiZApava6AfOzDsB0-cvBqjHhyVFahbiiCxZZw?e=QEq4Bo
-- Demo video(extension):
+- Demo video(extension):  https://1drv.ms/v/c/9ac9dee7a01ebf9b/EafpHp2C3stErbvqlniJaOIBhgbaetGt5i8ivxtx5_kGNg?e=PMGocm
 
 ---
 
@@ -79,7 +79,7 @@ This is how someone can install the extension locally (e.g. your friends).
 1.Download the ZIP
 
 Google Drive link:
-[Download extension ZIP] (https://drive.google.com/drive/folders/1Mpu7NiJBpCuVPiUKF3pwbxDpITZxJJiJ?usp=drive_link)
+[Download extension ZIP] https://drive.google.com/drive/folders/1Mpu7NiJBpCuVPiUKF3pwbxDpITZxJJiJ?usp=drive_link
 
 2.Unzip the folder
 
