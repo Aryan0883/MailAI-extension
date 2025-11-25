@@ -1,94 +1,3 @@
-
-// import { Container, TextField, Typography, Box, InputLabel, Select, MenuItem, FormControl, Button, CircularProgress } from '@mui/material'
-// import './App.css'
-// import { useState } from 'react'
-// import axios from 'axios';
-
-// function App() {
-// const [emailContent, setEmailContent] = useState('');
-// const [tone, setTone] = useState('');
-// const [generatedReply, setGeneratedReply] = useState('');
-// const [loading, setLoading] = useState(false);
-
-// const handleSubmit = async () => {
-//   setLoading(true);
-//   try {
-//     const response = await axios.post('http://localhost:8080/api/email/generate', {
-//       emailContent,
-//       tone
-//     });
-//     setGeneratedReply(typeof response.data === 'string' ? response.data : JSON.stringify(response.data));
-//   } catch (error) {
-//     console.error('Error generating email reply:', error);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-//   return (
-//      <Container maxWidth="md" sx={{ py: 4 }}>
-//       <Typography variant='h3' component='h1' gutterBottom>
-//         Email Reply Generator
-//       </Typography>
-
-//       <Box sx={{mx: 3}}>
-//         <TextField
-//         fullWidth
-//         multiline
-//         rows={6}
-//         label="original Email Content"
-//         variant="outlined"
-//         value={emailContent || ''}
-//         onChange={(e) => setEmailContent(e.target.value)}
-//         sx={{mb: 2}}
-//         />
-
-//       <FormControl fullWidth sx={{mb: 2}}>
-//         <InputLabel>Tone (Optional)</InputLabel>
-//         <Select
-//         value={tone || ''}
-//         label="Tone (Optional)"
-//         onChange={(e) => setTone(e.target.value)}
-//         >
-//         <MenuItem value="">None</MenuItem>
-//         <MenuItem value="professional">Professional</MenuItem>
-//         <MenuItem value="casual">Casual</MenuItem>
-//         <MenuItem value="friendly">Friendly</MenuItem>
-//         </Select>
-//       </FormControl>
-
-//       <Button variant="contained"
-//       sx={{mb: 3}}
-//       onClick={handleSubmit}
-//       disabled={!emailContent || loading}>
-//         {loading ? <CircularProgress size={24} /> : 'Generate Reply'}
-//       </Button>
-//     </Box>
-
-//       <Box sx={{mx: 3}}>
-//         <TextField
-//         fullWidth
-//         multiline
-//         rows={6}
-//         variant="outlined"
-//         value={generatedReply || ''}
-//         inputProps={{readonly: true}}
-//         sx={{mb: 2}}
-//         />
-//         <Button
-//         variant="outlined"
-//         onClick={() => navigator.clipboard.write(generatedReply)}>  
-//         Copy to Clipboard
-//         </Button>
-//       </Box>
-
-//       </Container> 
-//   )
-// }
-
-// export default App
-
-
 import { Container, TextField, Typography, Box, InputLabel, Select, MenuItem, FormControl, Button, CircularProgress, Paper, Divider, Chip } from '@mui/material'
 import './App.css'
 import { useState } from 'react'
@@ -103,11 +12,11 @@ function App() {
   const [generatedReply, setGeneratedReply] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // 🆕 New states for Improve feature
+  // New states for Improve feature
   const [improvementType, setImprovementType] = useState('general');
   const [improving, setImproving] = useState(false);
 
-  // ✅ Existing Generate function
+  //Existing Generate function
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -124,7 +33,7 @@ function App() {
     }
   };
 
-  // 🆕 New Improve function
+  //New Improve function
   const handleImprove = async () => {
     if (!generatedReply) {
       alert('Please generate a reply first!');
@@ -146,7 +55,7 @@ function App() {
     }
   };
 
-  // 🆕 Copy to clipboard function
+  //Copy to clipboard function
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedReply);
     alert('Copied to clipboard!');
@@ -205,7 +114,7 @@ function App() {
         </Button>
       </Paper>
 
-      {/* 📝 Generated Reply & Improve Section */}
+      {/* Generated Reply & Improve Section */}
       {generatedReply && (
         <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
