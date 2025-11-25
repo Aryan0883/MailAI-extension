@@ -1,0 +1,63 @@
+/* App.css */
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+/* Smooth transitions */
+.MuiButton-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiButton-root:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.MuiPaper-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiPaper-root:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Custom scrollbar for textfields */
+.MuiInputBase-root textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.MuiInputBase-root textarea::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.MuiInputBase-root textarea::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.MuiInputBase-root textarea::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.MuiCircularProgress-root {
+  animation: pulse 1.5s ease-in-out infinite;
+}
