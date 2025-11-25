@@ -1,5 +1,5 @@
-# Use Java 21
-FROM eclipse-temurin:21-jdk-alpine AS build
+# --- Build stage ---
+FROM eclipse-temurin:21-jdk AS build   # <--- no "-alpine"
 
 WORKDIR /app
 
@@ -15,8 +15,8 @@ COPY src src
 RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
-# Runtime stage
-FROM eclipse-temurin:21-jre-alpine
+# --- Runtime stage ---
+FROM eclipse-temurin:21-jre           # <--- no "-alpine"
 
 WORKDIR /app
 
